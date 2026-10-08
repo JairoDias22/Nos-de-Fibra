@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --color-folha: #2F5D3A;
+  --color-areia: #F6EEDC;
+  --color-areia-escura: #EFE4CB;
+  --color-terracota: #A5472B;
+  --color-fibra: #6B4A2B;
+  --color-ouro: #E3B04B;
+  --color-tinta: #2B2A22;
+  --font-display: "Fraunces", serif;
+  --font-sans: "Nunito", sans-serif;
+}
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-areia);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  font-size: 18px;
+}
+
+/* trançado discreto, inspirado na fibra de buriti */
+.trancado {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.07) 0 6px,
+    transparent 6px 12px
+  );
+}
