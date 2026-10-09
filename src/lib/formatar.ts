@@ -51,3 +51,14 @@ export function nomeDoMes(ano: number, mes: number) {
   );
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
+
+/** Tira o tipo do começo do nome: «Pirex mangue com branco» vira «Mangue com branco» dentro do tipo Pirex. */
+export function nomeSemTipo(nome: string, tipo: string) {
+  const limpo = nome.trim();
+  const comecaIgual =
+    normalizar(limpo.slice(0, tipo.length)) === normalizar(tipo) &&
+    (limpo.length === tipo.length || limpo[tipo.length] === " ");
+  if (!comecaIgual) return limpo;
+  const resto = limpo.slice(tipo.length).trim();
+  return resto ? resto.charAt(0).toUpperCase() + resto.slice(1) : limpo;
+}
