@@ -23,3 +23,4 @@ Para testar no celular, na mesma rede Wi-Fi, rode `npm run dev -- --host` e abra
 - Parte 1: base do projeto, tema, menu responsivo e tela inicial.
 - Parte 2: banco de dados, login, rotas protegidas e lista de estoque real com saldo e busca.
 - Parte 3: tela Vender (escolher a peça, quantidade, preço, desconto, data e local), com baixa automática no estoque e entrada no caixa.
+- Parte 4: tela Dinheiro (entradas e saídas do mês, totais, anotar gastos e outras entradas, navegação entre meses).
