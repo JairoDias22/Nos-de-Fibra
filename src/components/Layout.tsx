@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import { Icone, type NomeIcone } from "./Icones";
 
 const itens: { para: string; rotulo: string; icone: NomeIcone }[] = [
@@ -10,6 +11,8 @@ const itens: { para: string; rotulo: string; icone: NomeIcone }[] = [
 ];
 
 export default function Layout() {
+  const { sair } = useAuth();
+
   return (
     <div className="flex min-h-screen">
       {/* Menu lateral (computador) */}
@@ -35,12 +38,24 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
+        <button
+          onClick={sair}
+          className="mx-3.5 mb-6 mt-auto cursor-pointer rounded-xl border-2 border-white/40 bg-transparent px-4 py-3 text-lg font-bold text-white hover:bg-white/10"
+        >
+          Sair
+        </button>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topo (celular) */}
-        <header className="trancado bg-folha px-5 py-3 text-white md:hidden">
+        <header className="trancado flex items-center justify-between bg-folha px-5 py-3 text-white md:hidden">
           <span className="font-display text-xl font-bold">Nós de Fibra</span>
+          <button
+            onClick={sair}
+            className="cursor-pointer rounded-lg border-2 border-white/40 bg-transparent px-3 py-1 text-base font-bold text-white"
+          >
+            Sair
+          </button>
         </header>
 
         <main className="flex-1 px-5 py-6 pb-28 md:px-11 md:py-9 md:pb-9">
