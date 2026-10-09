@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { formatarData, formatarMoeda, hojeISO, intervaloDoMes, lerValor } from "../lib/formatar";
 import SeletorMes from "../components/SeletorMes";
+import CabecalhoPagina from "../components/CabecalhoPagina";
 import type { Lancamento } from "../types";
 
 type Tipo = "entrada" | "saida";
@@ -122,7 +123,7 @@ export default function Dinheiro() {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="m-0 font-display text-4xl font-bold md:text-5xl">Dinheiro</h1>
+      <CabecalhoPagina icone="moeda" titulo="Dinheiro" texto="O que entrou e o que saiu" cor="bg-fibra text-white" />
 
       <SeletorMes ano={ref.ano} mes={ref.mes} onMudar={mudarMes} />
 

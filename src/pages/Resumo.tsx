@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { carregarProdutosComSaldo } from "../lib/produtos";
 import { formatarMoeda, intervaloDoMes, rotuloUnidade } from "../lib/formatar";
 import SeletorMes from "../components/SeletorMes";
+import CabecalhoPagina from "../components/CabecalhoPagina";
 import { BarrasHorizontais, BarrasPorDia } from "../components/Graficos";
 import type { ProdutoComSaldo } from "../types";
 
@@ -157,7 +158,7 @@ export default function Resumo() {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="m-0 font-display text-4xl font-bold md:text-5xl">Resumo</h1>
+      <CabecalhoPagina icone="grafico" titulo="Resumo" texto="Como está indo o mês" cor="bg-ouro text-tinta" />
 
       <SeletorMes ano={ref.ano} mes={ref.mes} onMudar={mudarMes} />
 
