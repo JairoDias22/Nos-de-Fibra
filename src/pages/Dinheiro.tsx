@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { formatarData, formatarMoeda, hojeISO, lerValor } from "../lib/formatar";
+import { formatarData, formatarMoeda, hojeISO, intervaloDoMes, lerValor } from "../lib/formatar";
+import SeletorMes from "../components/SeletorMes";
 import type { Lancamento } from "../types";
 
 type Tipo = "entrada" | "saida";
@@ -12,24 +13,6 @@ const CATEGORIAS: Record<Tipo, string[]> = {
 
 const campo =
   "w-full rounded-2xl border-2 border-transparent bg-areia px-5 py-4 text-xl outline-none focus:border-folha";
-
-function dois(n: number) {
-  return String(n).padStart(2, "0");
-}
-
-/** Primeiro dia do mês e primeiro dia do mês seguinte, no formato AAAA-MM-DD. */
-function intervalo(ano: number, mes: number) {
-  const inicio = `${ano}-${dois(mes + 1)}-01`;
-  const fim = mes === 11 ? `${ano + 1}-01-01` : `${ano}-${dois(mes + 2)}-01`;
-  return { inicio, fim };
-}
-
-function nomeDoMes(ano: number, mes: number) {
-  const texto = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(
-    new Date(ano, mes, 1),
-  );
-  return texto.charAt(0).toUpperCase() + texto.slice(1);
-}
 
 export default function Dinheiro() {
   const hoje = new Date();
@@ -49,15 +32,13 @@ export default function Dinheiro() {
 
   const [apagando, setApagando] = useState<string | null>(null);
 
-  const mesAtual = ref.ano === hoje.getFullYear() && ref.mes === hoje.getMonth();
-
   useEffect(() => {
     let ativo = true;
 
     async function carregar() {
       setCarregando(true);
       setErroCarga(false);
-      const { inicio, fim } = intervalo(ref.ano, ref.mes);
+      const { inicio, fim } = intervaloDoMes(ref.ano, ref.mes);
       const { data: linhas, error } = await supabase
         .from("lancamentos")
         .select("id, tipo, categoria, descricao, valor, data, venda_id")
@@ -143,23 +124,7 @@ export default function Dinheiro() {
     <div className="flex flex-col gap-5">
       <h1 className="m-0 font-display text-4xl font-bold md:text-5xl">Dinheiro</h1>
 
-      {/* Mês */}
-      <div className="flex items-center justify-between gap-3 rounded-3xl bg-white px-4 py-3">
-        <button
-          onClick={() => mudarMes(-1)}
-          className="cursor-pointer rounded-xl border-0 bg-areia-escura px-4 py-2 text-lg font-bold text-tinta"
-        >
-          ‹ Anterior
-        </button>
-        <span className="text-center font-display text-2xl font-bold">{nomeDoMes(ref.ano, ref.mes)}</span>
-        <button
-          onClick={() => mudarMes(1)}
-          disabled={mesAtual}
-          className="cursor-pointer rounded-xl border-0 bg-areia-escura px-4 py-2 text-lg font-bold text-tinta disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          Próximo ›
-        </button>
-      </div>
+      <SeletorMes ano={ref.ano} mes={ref.mes} onMudar={mudarMes} />
 
       {/* Totais */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

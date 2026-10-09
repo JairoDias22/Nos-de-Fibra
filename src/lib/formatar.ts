@@ -32,3 +32,22 @@ export function formatarData(iso: string) {
   const [ano, mes, dia] = iso.split("-");
   return `${dia}/${mes}/${ano}`;
 }
+
+function dois(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+/** Primeiro dia do mês e primeiro dia do mês seguinte (AAAA-MM-DD). O mês vai de 0 a 11. */
+export function intervaloDoMes(ano: number, mes: number) {
+  const inicio = `${ano}-${dois(mes + 1)}-01`;
+  const fim = mes === 11 ? `${ano + 1}-01-01` : `${ano}-${dois(mes + 2)}-01`;
+  return { inicio, fim };
+}
+
+/** Ex.: "Outubro de 2026". */
+export function nomeDoMes(ano: number, mes: number) {
+  const texto = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(
+    new Date(ano, mes, 1),
+  );
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
