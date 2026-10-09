@@ -24,3 +24,4 @@ Para testar no celular, na mesma rede Wi-Fi, rode `npm run dev -- --host` e abra
 - Parte 2: banco de dados, login, rotas protegidas e lista de estoque real com saldo e busca.
 - Parte 3: tela Vender (escolher a peça, quantidade, preço, desconto, data e local), com baixa automática no estoque e entrada no caixa.
 - Parte 4: tela Dinheiro (entradas e saídas do mês, totais, anotar gastos e outras entradas, navegação entre meses).
+- Parte 5: cadastro de peças novas, edição, entrada de estoque, correção de contagem e remoção da lista, tudo na tela Estoque.
