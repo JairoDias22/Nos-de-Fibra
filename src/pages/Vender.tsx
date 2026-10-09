@@ -2,22 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { carregarProdutosComSaldo } from "../lib/produtos";
-import { formatarMoeda, normalizar, rotuloUnidade } from "../lib/formatar";
+import { formatarMoeda, hojeISO, lerValor, normalizar, rotuloUnidade } from "../lib/formatar";
 import type { ProdutoComSaldo } from "../types";
 
 const LOCAIS = ["Na loja", "Feira", "Encomenda"];
-
-function hojeISO() {
-  const d = new Date();
-  const mes = String(d.getMonth() + 1).padStart(2, "0");
-  const dia = String(d.getDate()).padStart(2, "0");
-  return `${d.getFullYear()}-${mes}-${dia}`;
-}
-
-/** Aceita "25", "25,50" ou "25.50" e devolve um número (ou NaN). */
-function lerValor(texto: string) {
-  return Number(texto.trim().replace(",", "."));
-}
 
 const campo =
   "w-full rounded-2xl border-2 border-transparent bg-white px-5 py-4 text-xl outline-none focus:border-folha";

@@ -12,3 +12,13 @@ export type Produto = {
 };
 
 export type ProdutoComSaldo = Produto & { saldo: number };
+
+export type Lancamento = {
+  id: string;
+  tipo: "entrada" | "saida";
+  categoria: string;
+  descricao: string | null;
+  valor: number;
+  data: string;
+  venda_id: string | null;
+};
