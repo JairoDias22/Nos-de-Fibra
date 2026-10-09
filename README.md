@@ -26,3 +26,17 @@ Para testar no celular, na mesma rede Wi-Fi, rode `npm run dev -- --host` e abra
 - Parte 4: tela Dinheiro (entradas e saídas do mês, totais, anotar gastos e outras entradas, navegação entre meses).
 - Parte 5: cadastro de peças novas, edição, entrada de estoque, correção de contagem e remoção da lista, tudo na tela Estoque.
 - Parte 6: tela Resumo com vendas do mês, comparação com o mês anterior, gráficos por dia, peças mais vendidas, rendimento por tipo e peças acabando.
+- Parte 7: ícones e manifesto para instalar no celular como aplicativo e configuração de publicação na Vercel.
+
+## Publicando na internet (Vercel)
+
+1. Suba o projeto para um repositório no GitHub (o `.env.local` nunca vai junto).
+2. Em vercel.com, entre com o GitHub, clique em Add New > Project e escolha o repositório.
+3. O Vercel reconhece o Vite sozinho. Antes de publicar, abra Environment Variables e crie `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` com os mesmos valores do `.env.local`.
+4. Clique em Deploy. A cada `git push` na branch `main`, o site é atualizado automaticamente.
+5. No Supabase, em Authentication, deixe desligado o cadastro público de novos usuários.
+
+## Instalando no celular
+
+Abra o endereço do site no navegador do celular e use "Adicionar à tela inicial" (Chrome no Android, Compartilhar > Adicionar à Tela de Início no iPhone).
+
