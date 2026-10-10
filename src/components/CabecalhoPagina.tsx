@@ -1,21 +1,32 @@
 import { Icone, type NomeIcone } from "./Icones";
 
+/** Cada tela tem sua cor, a mesma do atalho dela na página inicial. */
+const cores = {
+  folha: "bg-folha-clara text-folha",
+  terracota: "bg-terracota-clara text-terracota",
+  fibra: "bg-fibra-clara text-fibra",
+  ouro: "bg-ouro-clara text-[#7A5508]",
+} as const;
+
+export type CorPagina = keyof typeof cores;
+
 type Props = {
   icone: NomeIcone;
   titulo: string;
   texto?: string;
-  /** Cor da faixa, igual à do botão dessa tela na página inicial. Ex.: «bg-folha text-white». */
-  cor: string;
+  cor: CorPagina;
 };
 
-/** Faixa colorida no topo de cada tela, para a pessoa saber onde está só de olhar a cor. */
+/** Título da tela: ícone colorido, nome e uma frase curta. */
 export default function CabecalhoPagina({ icone, titulo, texto, cor }: Props) {
   return (
-    <header className={`trancado ${cor} flex items-center gap-4 rounded-3xl px-6 py-5`}>
-      <Icone nome={icone} tamanho={44} />
+    <header className="flex items-center gap-4">
+      <span className={`flex size-14 shrink-0 items-center justify-center rounded-2xl ${cores[cor]}`}>
+        <Icone nome={icone} tamanho={30} />
+      </span>
       <div>
-        <h1 className="m-0 font-display text-3xl font-bold md:text-4xl">{titulo}</h1>
-        {texto && <p className="m-0 text-lg md:text-xl">{texto}</p>}
+        <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-4xl">{titulo}</h1>
+        {texto && <p className="m-0 text-lg opacity-70">{texto}</p>}
       </div>
     </header>
   );

@@ -1,14 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  --color-folha: #2F5D3A;
-  --color-areia: #F6EEDC;
-  --color-areia-escura: #EFE4CB;
-  --color-terracota: #A5472B;
-  --color-fibra: #6B4A2B;
-  --color-ouro: #E3B04B;
-  --color-tinta: #2B2A22;
-  --font-display: "Fraunces", serif;
+  /* Tons claros e limpos. Os nomes vêm da fibra de buriti, os valores foram clareados. */
+  --color-folha: #2F7A4C;
+  --color-folha-clara: #E6F2EA;
+  --color-areia: #F4F7F3;
+  --color-areia-escura: #E2E8E0;
+  --color-terracota: #BF5535;
+  --color-terracota-clara: #FBEAE4;
+  --color-fibra: #8A6843;
+  --color-fibra-clara: #F4EDE4;
+  --color-ouro: #E8B84A;
+  --color-ouro-clara: #FBF2D9;
+  --color-tinta: #1E2B24;
+  --font-display: "Nunito", sans-serif;
   --font-sans: "Nunito", sans-serif;
 }
 
@@ -24,7 +29,18 @@ body {
   font-size: 18px;
 }
 
-/* trançado discreto, inspirado na fibra de buriti */
+/* Cartão branco com borda fina, usado em todas as telas.
+   Fica na camada "components" para que classes como border-l-8 consigam sobrescrever. */
+@layer components {
+  .cartao {
+    background: #fff;
+    border: 1px solid var(--color-areia-escura);
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px rgb(20 40 28 / 0.05);
+  }
+}
+
+/* trançado discreto, inspirado na fibra de buriti (usado só na tela de login) */
 .trancado {
   background-image: repeating-linear-gradient(
     45deg,
