@@ -1,7 +1,7 @@
 import type { CellValue, Workbook, Worksheet } from "exceljs";
 import { supabase } from "./supabase";
 import { carregarProdutosComSaldo } from "./produtos";
-import { rotuloUnidade } from "./formatar";
+import type { ProdutoComSaldo } from "../types";
 
 /* ---------- Visual (o mesmo da planilha original do ateliê) ---------- */
 
@@ -16,12 +16,6 @@ const COR = {
   branco: "FFFFFFFF",
   verdeTexto: "FF3F6B2A",
   vermelhoTexto: "FFA23A1B",
-};
-
-const FUNDO_SITUACAO: Record<string, string> = {
-  Disponível: "FFDCE5C8",
-  "Estoque baixo": "FFF5DFA6",
-  Esgotado: "FFEBC0B3",
 };
 
 const REAIS = '"R$ "#,##0.00';
@@ -55,10 +49,6 @@ type Folha = {
   destaque?: (valor: CellValue, coluna: number) => Destaque | undefined;
   geradaEm: string;
 };
-
-function letra(numeroColuna: number) {
-  return String.fromCharCode(64 + numeroColuna);
-}
 
 function montarFolha(wb: Workbook, f: Folha) {
   const nCol = f.colunas.length;
@@ -230,6 +220,7 @@ async function buscarTudo<T>(
 }
 
 type VendaBruta = {
+  produto_id: string;
   data: string;
   quantidade: number;
   valor_unitario: number;
@@ -253,14 +244,316 @@ function dataExcel(iso: string) {
   return new Date(Date.UTC(ano, mes - 1, dia));
 }
 
-function situacao(saldo: number, minimo: number) {
-  if (saldo <= 0) return "Esgotado";
-  if (saldo <= minimo) return "Estoque baixo";
-  return "Disponível";
-}
-
 function doisDigitos(n: number) {
   return String(n).padStart(2, "0");
+}
+
+/* ---------- Aba "Lista de estoque" (cópia fiel da planilha original) ---------- */
+
+const LISTA_PRIMEIRA = 9;
+const LISTA_CABECALHO = 8;
+const LINHAS_RESERVA = 13; // linhas vazias com as contas prontas, como na planilha original
+
+function fundoSolido(argb: string) {
+  return { type: "pattern" as const, pattern: "solid" as const, fgColor: { argb } };
+}
+
+function montarListaDeEstoque(
+  wb: Workbook,
+  produtos: ProdutoComSaldo[],
+  vendas: VendaBruta[],
+  geradaEm: string,
+) {
+  // Quanto cada peça já vendeu e quando saiu a última venda
+  const porPeca = new Map<string, { qtd: number; ultima: string }>();
+  for (const v of vendas) {
+    const atual = porPeca.get(v.produto_id);
+    porPeca.set(v.produto_id, {
+      qtd: (atual?.qtd ?? 0) + v.quantidade,
+      ultima: atual && atual.ultima > v.data ? atual.ultima : v.data,
+    });
+  }
+
+  const ordenados = [...produtos].sort(
+    (a, b) =>
+      a.categoria.localeCompare(b.categoria, "pt-BR") ||
+      a.nome.localeCompare(b.nome, "pt-BR") ||
+      (a.tamanho ?? "").localeCompare(b.tamanho ?? "", "pt-BR", { numeric: true }),
+  );
+
+  // Qtde = tudo que já entrou; QTDE Vendida = tudo que já saiu em venda; Saldo = Qtde − Vendida
+  const itens = ordenados.map((p) => {
+    const vendida = porPeca.get(p.id)?.qtd ?? 0;
+    const qtde = p.saldo + vendida;
+    return {
+      nome: p.nome,
+      tamanho: p.tamanho,
+      und: p.unidade === "par" ? (qtde === 1 ? "par" : "pares") : "und",
+      qtde,
+      compra: p.custo_unit === null ? null : Math.round(p.custo_unit * qtde * 100) / 100,
+      preco: p.preco_venda,
+      saida: porPeca.get(p.id)?.ultima ?? null,
+      vendida: vendida > 0 ? vendida : null,
+    };
+  });
+
+  const fim = Math.max(77, LISTA_CABECALHO + itens.length + LINHAS_RESERVA);
+  const rodape = fim + 2;
+  const LIMIAR = 2;
+
+  const ws = wb.addWorksheet("Lista de estoque", {
+    properties: { tabColor: { argb: COR.terracota } },
+    views: [{ showGridLines: false, zoomScale: 80, zoomScaleNormal: 80 }],
+  });
+
+  [3, 59.3, 14, 11, 10, 18.3, 15, 16, 14, 12, 16, 13, 16, 3].forEach((l, i) => {
+    ws.getColumn(i + 1).width = l;
+  });
+
+  // Fundo creme em tudo
+  for (let r = 1; r <= rodape; r++) {
+    for (let c = 1; c <= 14; c++) ws.getCell(r, c).fill = fundoSolido(COR.creme);
+  }
+
+  // Quando a planilha foi gerada
+  ws.mergeCells("B1:M1");
+  const gerada = ws.getCell("B1");
+  gerada.value = `Planilha gerada em ${geradaEm}`;
+  gerada.font = { name: "Georgia", size: 9, italic: true, color: { argb: COR.dourado } };
+  gerada.alignment = { horizontal: "right", vertical: "middle" };
+
+  // Título, subtítulo e pontilhado
+  ws.mergeCells("B2:M2");
+  const titulo = ws.getCell("B2");
+  titulo.value = "✦  Nós de Fibra  ✦";
+  titulo.font = { name: "Georgia", size: 30, bold: true, color: { argb: COR.terracota } };
+  titulo.alignment = { horizontal: "center", vertical: "middle" };
+  ws.getRow(2).height = 45.75;
+
+  ws.mergeCells("B3:M3");
+  const sub = ws.getCell("B3");
+  sub.value = "Ponto de Cultura  ·  Controle de Estoque e Vendas do Ateliê";
+  sub.font = { name: "Georgia", size: 13, color: { argb: COR.marrom } };
+  sub.alignment = { horizontal: "center", vertical: "middle" };
+  ws.getRow(3).height = 16.5;
+
+  ws.mergeCells("B4:M4");
+  const pontos = ws.getCell("B4");
+  pontos.value = "· ".repeat(50);
+  pontos.font = { name: "Georgia", size: 10, color: { argb: COR.dourado } };
+  pontos.alignment = { horizontal: "center" };
+
+  // Cartões de resumo (linhas 5 e 6), com as mesmas contas da original
+  const primeiraFaixa = (col: string) => `${col}${LISTA_PRIMEIRA}:${col}${fim}`;
+  const qtdPecas = itens.reduce((t, i) => t + i.qtde - (i.vendida ?? 0), 0);
+  const valorTudo = itens.reduce((t, i) => t + i.qtde * i.preco, 0);
+  const valorVendido = itens.reduce((t, i) => t + (i.vendida ?? 0) * i.preco, 0);
+
+  const cartoes: { de: string; ate: string; rotulo: string; valor: CellValue; formato: string }[] = [
+    { de: "B", ate: "B", rotulo: "Produtos cadastrados", valor: { formula: `COUNTA(${primeiraFaixa("B")})`, result: itens.length }, formato: "0" },
+    { de: "C", ate: "F", rotulo: "Peças em estoque", valor: { formula: `SUM(${primeiraFaixa("L")})`, result: qtdPecas }, formato: "0" },
+    { de: "G", ate: "J", rotulo: "Valor em estoque (R$)", valor: { formula: `SUM(${primeiraFaixa("H")})-SUM(${primeiraFaixa("K")})`, result: valorTudo - valorVendido }, formato: REAIS },
+    { de: "K", ate: "M", rotulo: "Total vendido (R$)", valor: { formula: `SUM(${primeiraFaixa("K")})`, result: valorVendido }, formato: REAIS },
+  ];
+  for (const c of cartoes) {
+    if (c.de !== c.ate) {
+      ws.mergeCells(`${c.de}5:${c.ate}5`);
+      ws.mergeCells(`${c.de}6:${c.ate}6`);
+    }
+    const rot = ws.getCell(`${c.de}5`);
+    rot.value = c.rotulo;
+    rot.font = { name: "Georgia", size: 10, bold: true, color: { argb: COR.branco } };
+    rot.fill = fundoSolido(COR.oliva);
+    rot.alignment = { horizontal: "center", vertical: "middle" };
+    rot.border = { top: { style: "thin", color: { argb: COR.dourado } } };
+
+    const val = ws.getCell(`${c.de}6`);
+    val.value = c.valor;
+    val.numFmt = c.formato;
+    val.font = { name: "Georgia", size: 18, bold: true, color: { argb: COR.marrom } };
+    val.fill = fundoSolido(COR.cremeClaro);
+    val.alignment = { horizontal: "center", vertical: "middle" };
+    val.border = { bottom: { style: "thin", color: { argb: COR.dourado } } };
+  }
+  ws.getRow(5).height = 19.5;
+  ws.getRow(6).height = 33.75;
+
+  // Linha 7: dica e limite de "estoque baixo" (a célula M7 pode ser mudada)
+  ws.mergeCells("B7:J7");
+  const dica = ws.getCell("B7");
+  dica.value = "Preencha as células claras · as células cor de areia calculam sozinhas  ✎";
+  dica.font = { name: "Calibri", size: 10, italic: true, color: { argb: COR.marrom } };
+  dica.alignment = { vertical: "middle" };
+
+  ws.mergeCells("K7:L7");
+  const rotLimite = ws.getCell("K7");
+  rotLimite.value = "Alerta de estoque baixo (≤):";
+  rotLimite.font = { name: "Calibri", size: 10, bold: true, color: { argb: COR.marrom } };
+  rotLimite.alignment = { horizontal: "right", vertical: "middle" };
+
+  const limite = ws.getCell("M7");
+  limite.value = LIMIAR;
+  limite.font = { name: "Calibri", size: 11, bold: true, color: { argb: "FF0000FF" } };
+  limite.fill = fundoSolido(COR.branco);
+  limite.alignment = { horizontal: "center", vertical: "middle" };
+  const fio = { style: "thin" as const, color: { argb: COR.dourado } };
+  limite.border = { top: fio, bottom: fio, left: fio, right: fio };
+  limite.note = 'Quando o saldo de um produto for igual ou menor que este número, a situação muda para "Estoque baixo". Pode alterar.';
+  ws.getRow(7).height = 21.75;
+
+  // Cabeçalho da tabela (linha 8)
+  const titulos = ["Produto", "Tamanho", "Und", "Qtde", "Valor/compra", "Preço unitário", "Valor total", "Data Saída", "QTDE Vendida", "Valor da Venda", "Saldo em estoque", "Situação"];
+  titulos.forEach((t, i) => {
+    const cel = ws.getCell(LISTA_CABECALHO, i + 2);
+    cel.value = t;
+    cel.font = { name: "Georgia", size: 11, bold: true, color: { argb: COR.branco } };
+    cel.fill = fundoSolido(COR.terracota);
+    cel.alignment = { horizontal: i === 0 ? "left" : "center", vertical: "middle", wrapText: true };
+    cel.border = { bottom: { style: "medium", color: { argb: COR.marrom } } };
+  });
+  ws.getCell("F8").note = "Quanto você pagou por unidade ao comprar o produto (custo).";
+  ws.getCell("G8").note = "Preço de venda de cada unidade.";
+  ws.getRow(LISTA_CABECALHO).height = 31.5;
+
+  // Linhas de produtos e linhas vazias com as contas prontas (até a linha `fim`)
+  const formatos: (string | undefined)[] = [undefined, undefined, undefined, "0", REAIS, REAIS, REAIS, "mm-dd-yy", "0", REAIS, "0", undefined];
+  const alinhar: ("left" | "center")[] = ["left", "center", "center", "center", "center", "center", "center", "center", "center", "center", "center", "center"];
+  const calculada = [false, false, false, false, false, false, true, false, false, true, true, true];
+  const negrito = [false, false, false, false, false, false, true, false, false, true, false, false];
+
+  for (let r = LISTA_PRIMEIRA; r <= fim; r++) {
+    const item = itens[r - LISTA_PRIMEIRA];
+    const faixa = (r - LISTA_PRIMEIRA) % 2 === 0 ? COR.cremeClaro : COR.creme;
+    ws.getRow(r).height = 21;
+
+    const e = item?.qtde;
+    const j = item?.vendida ?? null;
+    const saldo = item && e !== undefined ? e - (j ?? 0) : null;
+    const valores: CellValue[] = [
+      item?.nome ?? null,
+      item?.tamanho ?? null,
+      item?.und ?? null,
+      e ?? null,
+      item?.compra ?? null,
+      item?.preco ?? null,
+      { formula: `IF(OR(E${r}="",G${r}=""),"",E${r}*G${r})`, result: item ? item.qtde * item.preco : "" },
+      item?.saida ? dataExcel(item.saida) : null,
+      j,
+      { formula: `IF(OR(J${r}="",G${r}=""),"",J${r}*G${r})`, result: item && j !== null ? j * item.preco : "" },
+      { formula: `IF(E${r}="","",E${r}-N(J${r}))`, result: saldo ?? "" },
+      {
+        formula: `IF(OR(B${r}="",E${r}=""),"",IF(L${r}<=0,"Esgotado",IF(L${r}<=$M$7,"Estoque baixo","Disponível")))`,
+        result: item && saldo !== null ? (saldo <= 0 ? "Esgotado" : saldo <= LIMIAR ? "Estoque baixo" : "Disponível") : "",
+      },
+    ];
+
+    valores.forEach((v, i) => {
+      const cel = ws.getCell(r, i + 2);
+      cel.value = v;
+      const f = formatos[i];
+      if (f) cel.numFmt = f;
+      cel.fill = fundoSolido(calculada[i] ? COR.areia : faixa);
+      cel.font = { name: "Calibri", size: 11, bold: negrito[i], color: { argb: COR.marrom } };
+      cel.alignment = { horizontal: alinhar[i], vertical: "middle" };
+      cel.border = { bottom: { style: "hair", color: { argb: COR.dourado } } };
+    });
+
+    // Regras de preenchimento (as mesmas da planilha original)
+    ws.getCell(r, 4).dataValidation = {
+      type: "list",
+      allowBlank: true,
+      formulae: ['"und,par,pares,kit"'],
+      showErrorMessage: true,
+      error: "Escolha uma unidade da lista.",
+    };
+    ws.getCell(r, 5).dataValidation = {
+      type: "whole",
+      operator: "greaterThanOrEqual",
+      allowBlank: true,
+      formulae: [0],
+      showErrorMessage: true,
+      errorTitle: "Quantidade",
+      error: "Digite um número inteiro (0 ou mais).",
+    };
+    ws.getCell(r, 6).dataValidation = {
+      type: "decimal",
+      operator: "greaterThanOrEqual",
+      allowBlank: true,
+      formulae: [0],
+      showErrorMessage: true,
+      errorTitle: "Valor de compra",
+      error: "Digite apenas o valor, ex.: 25 ou 25,50.",
+    };
+    ws.getCell(r, 7).dataValidation = {
+      type: "decimal",
+      operator: "greaterThanOrEqual",
+      allowBlank: true,
+      formulae: [0],
+      showErrorMessage: true,
+      errorTitle: "Preço",
+      error: "Digite apenas o valor, ex.: 25 ou 25,50.",
+    };
+    ws.getCell(r, 9).dataValidation = {
+      type: "date",
+      operator: "greaterThan",
+      allowBlank: true,
+      formulae: [new Date(Date.UTC(2000, 0, 1))],
+      showErrorMessage: true,
+      errorTitle: "Data",
+      error: "Digite uma data, ex.: 15/10/2026.",
+    };
+    ws.getCell(r, 10).dataValidation = {
+      type: "custom",
+      allowBlank: true,
+      formulae: [`AND(ISNUMBER(J${r}),J${r}>=0,J${r}<=E${r})`],
+      showErrorMessage: true,
+      errorTitle: "QTDE Vendida",
+      error: "A quantidade vendida não pode ser maior que a QTDE em estoque.",
+    };
+  }
+
+  // Cores da coluna Situação (Disponível, Estoque baixo, Esgotado)
+  ws.addConditionalFormatting({
+    ref: `M${LISTA_PRIMEIRA}:M${fim}`,
+    rules: [
+      {
+        type: "expression",
+        priority: 2,
+        formulae: [`$M${LISTA_PRIMEIRA}="Disponível"`],
+        style: { font: { bold: true, color: { argb: "FF3E5A1F" } }, fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFDCE5C8" } } },
+      },
+      {
+        type: "expression",
+        priority: 3,
+        formulae: [`$M${LISTA_PRIMEIRA}="Estoque baixo"`],
+        style: { font: { bold: true, color: { argb: "FF7A5300" } }, fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFF5DFA6" } } },
+      },
+      {
+        type: "expression",
+        priority: 4,
+        formulae: [`$M${LISTA_PRIMEIRA}="Esgotado"`],
+        style: { font: { bold: true, color: { argb: "FF8A2B12" } }, fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFEBC0B3" } } },
+      },
+    ],
+  });
+
+  // Rodapé
+  ws.mergeCells(`B${rodape}:M${rodape}`);
+  const rod = ws.getCell(`B${rodape}`);
+  rod.value = "Feito à mão, com carinho  ·  Para novos produtos, preencha a próxima linha vazia: as contas aparecem sozinhas.";
+  rod.font = { name: "Georgia", size: 10, italic: true, color: { argb: COR.terracota } };
+  rod.alignment = { horizontal: "center" };
+
+  // Filtro e impressão, como na original
+  ws.autoFilter = { from: { row: LISTA_CABECALHO, column: 2 }, to: { row: fim, column: 13 } };
+  ws.pageSetup = {
+    orientation: "landscape",
+    fitToPage: true,
+    fitToWidth: 1,
+    fitToHeight: 0,
+    printTitlesRow: `${LISTA_CABECALHO}:${LISTA_CABECALHO}`,
+    printArea: `A1:N${rodape}`,
+  };
 }
 
 /* ---------- Função principal ---------- */
@@ -272,7 +565,7 @@ export async function baixarPlanilha() {
     buscarTudo<VendaBruta>((de, ate) =>
       supabase
         .from("vendas")
-        .select("data, quantidade, valor_unitario, desconto, local_venda, produtos(nome, categoria, tamanho)")
+        .select("produto_id, data, quantidade, valor_unitario, desconto, local_venda, produtos(nome, categoria, tamanho)")
         .order("data", { ascending: false })
         .order("id")
         .range(de, ate),
@@ -296,72 +589,8 @@ export async function baixarPlanilha() {
   const agora = new Date();
   const geradaEm = `${doisDigitos(agora.getDate())}/${doisDigitos(agora.getMonth() + 1)}/${agora.getFullYear()} às ${doisDigitos(agora.getHours())}:${doisDigitos(agora.getMinutes())}`;
 
-  /* --- Aba Estoque --- */
-  const estoque = [...produtos].sort(
-    (a, b) =>
-      a.categoria.localeCompare(b.categoria, "pt-BR") ||
-      a.nome.localeCompare(b.nome, "pt-BR") ||
-      (a.tamanho ?? "").localeCompare(b.tamanho ?? "", "pt-BR", { numeric: true }),
-  );
-  const ultE = Math.max(PRIMEIRA_LINHA, LINHA_CABECALHO + estoque.length);
-  const totalPecas = estoque.reduce((s, p) => s + p.saldo, 0);
-  const totalValorEstoque = estoque.reduce((s, p) => s + p.saldo * p.preco_venda, 0);
-
-  montarFolha(wb, {
-    nome: "Estoque",
-    corAba: COR.terracota,
-    subtitulo: "Ponto de Cultura  ·  Controle de Estoque do Ateliê",
-    geradaEm,
-    colunas: [
-      { titulo: "Tipo", largura: 20, alinhar: "left" },
-      { titulo: "Peça", largura: 52, alinhar: "left" },
-      { titulo: "Tamanho", largura: 14 },
-      { titulo: "Und", largura: 9 },
-      { titulo: "Estoque", largura: 11, formato: "0" },
-      { titulo: "Custo unitário", largura: 16, formato: REAIS },
-      { titulo: "Preço unitário", largura: 16, formato: REAIS },
-      { titulo: "Valor em estoque", largura: 18, formato: REAIS, calculada: true },
-      { titulo: "Situação", largura: 16 },
-    ],
-    linhas: estoque.map((p, i) => {
-      const r = PRIMEIRA_LINHA + i;
-      return [
-        p.categoria,
-        p.nome,
-        p.tamanho ?? "",
-        rotuloUnidade(p.unidade, 1),
-        p.saldo,
-        p.custo_unit,
-        p.preco_venda,
-        { formula: `F${r}*H${r}`, result: p.saldo * p.preco_venda },
-        situacao(p.saldo, p.estoque_minimo),
-      ];
-    }),
-    cartoes: [
-      { rotulo: "Produtos cadastrados", valor: estoque.length > 0 ? { formula: `COUNTA(C${PRIMEIRA_LINHA}:C${ultE})`, result: estoque.length } : 0, formato: "0" },
-      { rotulo: "Peças em estoque", valor: estoque.length > 0 ? { formula: `SUM(F${PRIMEIRA_LINHA}:F${ultE})`, result: totalPecas } : 0, formato: "0" },
-      { rotulo: "Valor em estoque (R$)", valor: estoque.length > 0 ? { formula: `SUM(I${PRIMEIRA_LINHA}:I${ultE})`, result: totalValorEstoque } : 0, formato: REAIS },
-    ],
-    totais:
-      estoque.length > 0
-        ? [
-            "Total",
-            null,
-            null,
-            null,
-            { formula: `SUM(F${PRIMEIRA_LINHA}:F${ultE})`, result: totalPecas },
-            null,
-            null,
-            { formula: `SUM(I${PRIMEIRA_LINHA}:I${ultE})`, result: totalValorEstoque },
-            null,
-          ]
-        : undefined,
-    destaque: (valor, coluna) => {
-      if (coluna !== 8 || typeof valor !== "string") return undefined;
-      const fundo = FUNDO_SITUACAO[valor];
-      return fundo ? { fundo, negrito: true } : undefined;
-    },
-  });
+  /* --- Aba "Lista de estoque": igual à planilha original do ateliê --- */
+  montarListaDeEstoque(wb, produtos, vendas, geradaEm);
 
   /* --- Aba Vendas --- */
   const ultV = Math.max(PRIMEIRA_LINHA, LINHA_CABECALHO + vendas.length);
