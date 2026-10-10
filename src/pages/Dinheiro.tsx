@@ -24,6 +24,7 @@ export default function Dinheiro() {
   const [versao, setVersao] = useState(0);
 
   const [novo, setNovo] = useState<Tipo | null>(null);
+  const [editando, setEditando] = useState<string | null>(null);
   const [categoria, setCategoria] = useState("");
   const [valor, setValor] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -74,6 +75,7 @@ export default function Dinheiro() {
   }
 
   function abrirFormulario(tipo: Tipo) {
+    setEditando(null);
     setNovo(tipo);
     setCategoria("");
     setValor("");
@@ -81,6 +83,30 @@ export default function Dinheiro() {
     setData(hojeISO());
     setErro(null);
   }
+
+  function abrirEdicao(l: Lancamento) {
+    setEditando(l.id);
+    setNovo(l.tipo);
+    setCategoria(l.categoria);
+    setValor(String(l.valor).replace(".", ","));
+    setDescricao(l.descricao ?? "");
+    setData(l.data);
+    setErro(null);
+    setApagando(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function fecharFormulario() {
+    setNovo(null);
+    setEditando(null);
+  }
+
+  // Se o lançamento tem uma categoria que não está na lista, ela continua aparecendo para escolher.
+  const categoriasDoFormulario = novo
+    ? !categoria || CATEGORIAS[novo].includes(categoria)
+      ? CATEGORIAS[novo]
+      : [...CATEGORIAS[novo], categoria]
+    : [];
 
   const valorNumero = lerValor(valor);
   const formularioOk = Boolean(categoria) && Number.isFinite(valorNumero) && valorNumero > 0 && Boolean(data);
@@ -90,13 +116,15 @@ export default function Dinheiro() {
     setSalvando(true);
     setErro(null);
 
-    const { error } = await supabase.from("lancamentos").insert({
-      tipo: novo,
+    const dados = {
       categoria,
       descricao: descricao.trim() || null,
       valor: valorNumero,
       data,
-    });
+    };
+    const { error } = editando
+      ? await supabase.from("lancamentos").update(dados).eq("id", editando)
+      : await supabase.from("lancamentos").insert({ tipo: novo, ...dados });
 
     setSalvando(false);
     if (error) {
@@ -109,6 +137,7 @@ export default function Dinheiro() {
     setRef({ ano, mes: mes - 1 });
     setVersao((v) => v + 1);
     setNovo(null);
+    setEditando(null);
   }
 
   async function apagar(id: string) {
@@ -166,13 +195,13 @@ export default function Dinheiro() {
       ) : (
         <div className="flex flex-col gap-4 cartao p-6">
           <h2 className="m-0 font-display text-3xl font-bold">
-            {novo === "entrada" ? "Entrou dinheiro" : "Saiu dinheiro"}
+            {editando ? "Corrigir lançamento" : novo === "entrada" ? "Entrou dinheiro" : "Saiu dinheiro"}
           </h2>
 
           <div>
             <div className="mb-2 text-xl font-bold">Para quê?</div>
             <div className="flex flex-wrap gap-2">
-              {CATEGORIAS[novo].map((c) => (
+              {categoriasDoFormulario.map((c) => (
                 <button
                   key={c}
                   onClick={() => setCategoria(c)}
@@ -220,7 +249,7 @@ export default function Dinheiro() {
             {salvando ? "Salvando..." : "Salvar"}
           </button>
           <button
-            onClick={() => setNovo(null)}
+            onClick={fecharFormulario}
             className="cursor-pointer rounded-2xl border-2 border-folha bg-transparent px-6 py-3 text-xl font-bold text-folha"
           >
             Cancelar
@@ -275,12 +304,20 @@ export default function Dinheiro() {
                       </button>
                     </span>
                   ) : (
-                    <button
-                      onClick={() => setApagando(l.id)}
-                      className="cursor-pointer rounded-lg border-2 border-areia-escura bg-transparent px-3 py-1 text-base font-bold text-tinta"
-                    >
-                      Apagar
-                    </button>
+                    <span className="flex items-center gap-2">
+                      <button
+                        onClick={() => abrirEdicao(l)}
+                        className="cursor-pointer rounded-lg border-2 border-areia-escura bg-transparent px-3 py-1 text-base font-bold text-tinta"
+                      >
+                        Corrigir
+                      </button>
+                      <button
+                        onClick={() => setApagando(l.id)}
+                        className="cursor-pointer rounded-lg border-2 border-areia-escura bg-transparent px-3 py-1 text-base font-bold text-tinta"
+                      >
+                        Apagar
+                      </button>
+                    </span>
                   ))}
               </div>
             </li>

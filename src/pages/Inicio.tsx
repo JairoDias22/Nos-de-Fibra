@@ -17,6 +17,7 @@ const atalhos: {
   chip: string;
 }[] = [
   { para: "/vender", titulo: "Vender", texto: "Registrar uma venda nova", icone: "carrinho", chip: "bg-folha-clara text-folha" },
+  { para: "/vendas", titulo: "Vendas feitas", texto: "Ver ou desfazer uma venda", icone: "carrinho", chip: "bg-folha-clara text-folha" },
   { para: "/estoque", titulo: "Estoque", texto: "Ver e cadastrar as peças", icone: "caixa", chip: "bg-terracota-clara text-terracota" },
   { para: "/dinheiro", titulo: "Dinheiro", texto: "O que entrou e o que saiu", icone: "moeda", chip: "bg-fibra-clara text-fibra" },
   { para: "/resumo", titulo: "Resumo", texto: "Como estão as vendas", icone: "grafico", chip: "bg-ouro-clara text-[#7A5508]" },
