@@ -1,7 +1,7 @@
 export default function ConfigFaltando() {
   return (
     <div className="mx-auto flex min-h-screen max-w-xl items-center p-6">
-      <div className="rounded-3xl bg-white p-8 text-lg">
+      <div className="cartao p-8 text-lg">
         <h1 className="m-0 font-display text-3xl font-bold">Falta configurar a conexão</h1>
         <p>
           Crie na pasta do projeto um arquivo chamado <b>.env.local</b>, copiando o{" "}

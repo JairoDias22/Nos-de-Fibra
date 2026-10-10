@@ -12,7 +12,7 @@ export default function SeletorMes({ ano, mes, onMudar }: Props) {
   const mesAtual = ano === hoje.getFullYear() && mes === hoje.getMonth();
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-3xl bg-white px-4 py-3">
+    <div className="flex items-center justify-between gap-3 cartao px-4 py-3">
       <button
         onClick={() => onMudar(-1)}
         className="cursor-pointer rounded-xl border-0 bg-areia-escura px-4 py-2 text-lg font-bold text-tinta"

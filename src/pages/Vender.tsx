@@ -154,11 +154,11 @@ export default function Vender() {
 
   return (
     <div className="flex flex-col gap-5">
-      <CabecalhoPagina icone="carrinho" titulo="Vender" texto="Registrar uma venda nova" cor="bg-folha text-white" />
+      <CabecalhoPagina icone="carrinho" titulo="Vender" texto="Registrar uma venda nova" cor="folha" />
 
       {vendido ? (
         <>
-          <div className="rounded-3xl bg-white p-7">
+          <div className="cartao p-7">
             <p className="m-0 font-display text-3xl font-bold text-folha">✓ Venda registrada!</p>
             <p className="mb-0 mt-3 text-2xl font-bold">{vendido.nome}</p>
             <p className="mb-0 mt-1 font-display text-4xl font-bold">{formatarMoeda(vendido.total)}</p>
@@ -195,7 +195,7 @@ export default function Vender() {
                 ‹ Trocar a peça
               </button>
 
-              <div className="rounded-3xl bg-white px-6 py-5">
+              <div className="cartao px-6 py-5">
                 <div className="text-2xl font-bold">{escolhido.nome}</div>
                 <div className="text-lg opacity-75">
                   {[escolhido.tamanho, `${escolhido.saldo} ${rotuloUnidade(escolhido.unidade, escolhido.saldo)} no estoque`]
@@ -204,7 +204,7 @@ export default function Vender() {
                 </div>
               </div>
 
-              <div className="rounded-3xl bg-white px-6 py-5">
+              <div className="cartao px-6 py-5">
                 <div className="mb-3 text-xl font-bold">Quantas?</div>
                 <div className="flex items-center gap-5">
                   <button
@@ -281,7 +281,7 @@ export default function Vender() {
                 </div>
               </div>
 
-              <div className="rounded-3xl bg-folha px-6 py-5 text-white">
+              <div className="rounded-2xl bg-folha px-6 py-5 text-white">
                 <div className="text-xl">Total da venda</div>
                 <div className="font-display text-5xl font-bold">{valoresOk ? formatarMoeda(total) : "—"}</div>
               </div>
@@ -317,7 +317,7 @@ export default function Vender() {
               />
 
               {termo ? (
-                <div className="rounded-3xl bg-white px-6 py-2">
+                <div className="cartao px-6 py-2">
                   {resultados.length === 0 && <p className="text-xl font-bold">Nenhuma peça disponível encontrada.</p>}
                   <ul className="m-0 list-none p-0">
                     {resultados.map((p) => (
@@ -353,13 +353,12 @@ export default function Vender() {
                       <button
                         key={t.tipo}
                         onClick={() => setParams({ tipo: t.tipo })}
-                        className="trancado flex min-h-28 cursor-pointer items-center justify-between gap-3 rounded-3xl border-0 bg-folha px-7 py-5 text-left text-white"
-                      >
+                        className="cartao flex min-h-28 cursor-pointer items-center justify-between gap-3 border-l-8 border-l-folha px-7 py-5 text-left text-tinta hover:border-folha">
                         <span>
                           <span className="block font-display text-3xl font-bold">{t.tipo}</span>
-                          <span className="block text-lg">{t.pecas} em estoque</span>
+                          <span className="block text-lg opacity-70">{t.pecas} em estoque</span>
                         </span>
-                        <span aria-hidden="true" className="text-4xl">
+                        <span aria-hidden="true" className="text-4xl text-folha">
                           ›
                         </span>
                       </button>
@@ -378,7 +377,7 @@ export default function Vender() {
               </button>
               <h2 className="m-0 font-display text-3xl font-bold">{doTipo.tipo}: qual peça?</h2>
               {modelos.map((m) => (
-                <section key={m.nome} className="rounded-3xl bg-white px-6 py-5">
+                <section key={m.nome} className="cartao px-6 py-5">
                   <h3 className="mb-3 mt-0 font-display text-2xl font-bold">{nomeSemTipo(m.nome, doTipo.tipo)}</h3>
                   <div className="flex flex-wrap gap-3">
                     {m.itens.map((p) => (

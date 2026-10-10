@@ -40,3 +40,5 @@ Para testar no celular, na mesma rede Wi-Fi, rode `npm run dev -- --host` e abra
 
 Abra o endereço do site no navegador do celular e use "Adicionar à tela inicial" (Chrome no Android, Compartilhar > Adicionar à Tela de Início no iPhone).
 - Parte 8: visual reorganizado. Estoque separado por tipo de peça (e por modelo e tamanho), Vender em 3 passos (tipo, peça, venda) e uma faixa colorida no topo de cada tela, na mesma cor do botão dela na página inicial.
+- Parte 9: visual claro e profissional (menu lateral branco, cartões com borda fina), Estoque em tabela estilo planilha com ordenação, filtro por tipo e botão «Por grupo», e Resumo com escolha de Dia, Semana, Mês e Ano e gráfico de colunas por dia.
+

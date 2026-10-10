@@ -123,21 +123,21 @@ export default function Dinheiro() {
 
   return (
     <div className="flex flex-col gap-5">
-      <CabecalhoPagina icone="moeda" titulo="Dinheiro" texto="O que entrou e o que saiu" cor="bg-fibra text-white" />
+      <CabecalhoPagina icone="moeda" titulo="Dinheiro" texto="O que entrou e o que saiu" cor="fibra" />
 
       <SeletorMes ano={ref.ano} mes={ref.mes} onMudar={mudarMes} />
 
       {/* Totais */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-3xl bg-white px-6 py-5">
+        <div className="cartao px-6 py-5">
           <div className="text-lg">Entrou</div>
           <div className="font-display text-3xl font-bold text-folha">{formatarMoeda(totais.entrou)}</div>
         </div>
-        <div className="rounded-3xl bg-white px-6 py-5">
+        <div className="cartao px-6 py-5">
           <div className="text-lg">Saiu</div>
           <div className="font-display text-3xl font-bold text-terracota">{formatarMoeda(totais.saiu)}</div>
         </div>
-        <div className="rounded-3xl bg-white px-6 py-5">
+        <div className="cartao px-6 py-5">
           <div className="text-lg">Sobrou</div>
           <div
             className={`font-display text-3xl font-bold ${totais.sobrou < 0 ? "text-terracota" : "text-tinta"}`}
@@ -164,7 +164,7 @@ export default function Dinheiro() {
           </button>
         </div>
       ) : (
-        <div className="flex flex-col gap-4 rounded-3xl bg-white p-6">
+        <div className="flex flex-col gap-4 cartao p-6">
           <h2 className="m-0 font-display text-3xl font-bold">
             {novo === "entrada" ? "Entrou dinheiro" : "Saiu dinheiro"}
           </h2>
@@ -229,7 +229,7 @@ export default function Dinheiro() {
       )}
 
       {/* Lista do mês */}
-      <div className="rounded-3xl bg-white px-6 py-2">
+      <div className="cartao px-6 py-2">
         {carregando && <p className="text-xl font-bold">Carregando...</p>}
         {erroCarga && (
           <p role="alert" className="text-xl font-bold text-[#7A2A12]">
