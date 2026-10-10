@@ -26,19 +26,16 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center p-5">
       <div className="w-full max-w-md overflow-hidden cartao shadow-sm">
-        <div className="flex justify-center bg-white px-6 pb-4 pt-8">
+        <div className="flex justify-center bg-white px-6 pb-5 pt-8">
           <img
-            src="/logo-associacao.png"
-            alt="Associação Cultural dos Moradores de Boa Vista"
-            width={285}
-            height={97}
+            src="/logo-nos-de-fibra.png"
+            alt="Nós de Fibra - Ponto de cultura - Lençóis Maranhenses"
+            width={775}
+            height={376}
             className="h-auto w-72 max-w-full"
           />
         </div>
-        <div className="trancado bg-folha px-8 py-8 text-white">
-          <div className="font-display text-4xl font-bold">Nós de Fibra</div>
-          <div className="text-lg">Ponto de Cultura</div>
-        </div>
+        <div className="trancado h-3 bg-folha" />
         <form onSubmit={aoEnviar} className="flex flex-col gap-5 p-8">
           <h1 className="m-0 font-display text-3xl font-bold">Bem-vinda!</h1>
           <label className="flex flex-col gap-2 text-lg font-bold">

@@ -10,17 +10,6 @@ const itens: { para: string; rotulo: string; icone: NomeIcone }[] = [
   { para: "/resumo", rotulo: "Resumo", icone: "grafico" },
 ];
 
-/** Marca do ponto de cultura: os arcos de fibra num quadrado verde. */
-function Marca({ tamanho = 40 }: { tamanho?: number }) {
-  return (
-    <svg width={tamanho} height={tamanho} viewBox="0 0 64 64" aria-hidden="true">
-      <rect width="64" height="64" rx="14" fill="#2F7A4C" />
-      <path d="M14 46c6-18 14-26 18-26s12 8 18 26" fill="none" stroke="#E8B84A" strokeWidth="5" strokeLinecap="round" />
-      <path d="M22 46c3-9 7-14 10-14s7 5 10 14" fill="none" stroke="#F4F7F3" strokeWidth="4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export default function Layout() {
   const { sair } = useAuth();
 
@@ -29,20 +18,12 @@ export default function Layout() {
       {/* Menu lateral (computador) */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-areia-escura bg-white md:flex">
         <img
-          src="/logo-associacao.png"
-          alt="Associação Cultural dos Moradores de Boa Vista"
-          width={285}
-          height={97}
-          className="mx-auto mt-5 h-auto w-56 max-w-full"
+          src="/logo-nos-de-fibra.png"
+          alt="Nós de Fibra - Ponto de cultura - Lençóis Maranhenses"
+          width={775}
+          height={376}
+          className="mx-auto mb-3 mt-6 h-auto w-52 max-w-full"
         />
-        <div className="mx-5 my-4 border-t border-areia-escura" />
-        <div className="flex items-center gap-3 px-6 pb-4">
-          <Marca />
-          <div>
-            <div className="text-xl font-extrabold leading-tight">Nós de Fibra</div>
-            <div className="text-sm opacity-70">Ponto de Cultura</div>
-          </div>
-        </div>
         <nav className="flex flex-col gap-1 px-3 py-2">
           {itens.map((item) => (
             <NavLink
@@ -71,16 +52,13 @@ export default function Layout() {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topo (celular) */}
         <header className="flex items-center justify-between border-b border-areia-escura bg-white px-5 py-3 md:hidden">
-          <span className="flex items-center gap-3 text-lg font-extrabold">
-            <img
-              src="/logo-associacao.png"
-              alt="Associação Cultural dos Moradores de Boa Vista"
-              width={285}
-              height={97}
-              className="h-11 w-auto"
-            />
-            Nós de Fibra
-          </span>
+          <img
+            src="/logo-nos-de-fibra.png"
+            alt="Nós de Fibra - Ponto de cultura - Lençóis Maranhenses"
+            width={775}
+            height={376}
+            className="h-14 w-auto"
+          />
           <button
             onClick={sair}
             className="cursor-pointer rounded-lg border border-areia-escura bg-white px-3 py-1 text-base font-bold text-tinta"
