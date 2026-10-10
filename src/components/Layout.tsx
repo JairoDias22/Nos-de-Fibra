@@ -28,7 +28,15 @@ export default function Layout() {
     <div className="flex min-h-screen">
       {/* Menu lateral (computador) */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-areia-escura bg-white md:flex">
-        <div className="flex items-center gap-3 px-6 py-6">
+        <img
+          src="/logo-associacao.png"
+          alt="Associação Cultural dos Moradores de Boa Vista"
+          width={285}
+          height={97}
+          className="mx-auto mt-5 h-auto w-56 max-w-full"
+        />
+        <div className="mx-5 my-4 border-t border-areia-escura" />
+        <div className="flex items-center gap-3 px-6 pb-4">
           <Marca />
           <div>
             <div className="text-xl font-extrabold leading-tight">Nós de Fibra</div>
@@ -52,16 +60,9 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
-        <img
-          src="/logo-associacao.png"
-          alt="Associação Cultural dos Moradores de Boa Vista"
-          width={285}
-          height={97}
-          className="mx-auto mt-auto h-auto w-52 max-w-full px-3 pb-3"
-        />
         <button
           onClick={sair}
-          className="mx-3 mb-6 cursor-pointer rounded-xl border border-areia-escura bg-white px-4 py-3 text-lg font-bold text-tinta hover:bg-areia"
+          className="mx-3 mb-6 mt-auto cursor-pointer rounded-xl border border-areia-escura bg-white px-4 py-3 text-lg font-bold text-tinta hover:bg-areia"
         >
           Sair
         </button>
@@ -70,8 +71,14 @@ export default function Layout() {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topo (celular) */}
         <header className="flex items-center justify-between border-b border-areia-escura bg-white px-5 py-3 md:hidden">
-          <span className="flex items-center gap-2 text-xl font-extrabold">
-            <Marca tamanho={32} />
+          <span className="flex items-center gap-3 text-lg font-extrabold">
+            <img
+              src="/logo-associacao.png"
+              alt="Associação Cultural dos Moradores de Boa Vista"
+              width={285}
+              height={97}
+              className="h-11 w-auto"
+            />
             Nós de Fibra
           </span>
           <button

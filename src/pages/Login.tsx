@@ -26,13 +26,13 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center p-5">
       <div className="w-full max-w-md overflow-hidden cartao shadow-sm">
-        <div className="flex justify-center bg-white px-8 pb-2 pt-6">
+        <div className="flex justify-center bg-white px-6 pb-4 pt-8">
           <img
             src="/logo-associacao.png"
             alt="Associação Cultural dos Moradores de Boa Vista"
             width={285}
             height={97}
-            className="h-auto w-64 max-w-full"
+            className="h-auto w-72 max-w-full"
           />
         </div>
         <div className="trancado bg-folha px-8 py-8 text-white">
