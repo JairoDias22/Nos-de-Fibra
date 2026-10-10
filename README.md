@@ -7,7 +7,7 @@ Sistema web de gestão do ponto de cultura **Nós de Fibra**, em Barreirinhas (M
 - Histórico de vendas, com cancelamento de uma venda feita por engano
 - Dinheiro: o que entrou e o que saiu, com correção dos lançamentos anotados à mão
 - Resumo por dia, semana, mês e ano, com gráficos
-- Planilha em Excel para baixar, no mesmo modelo da planilha original
+- Planilha em Excel para baixar, no mesmo modelo da planilha original, e botão para atualizar o sistema a partir dela
 - Funciona no celular e no computador, e pode ser instalado na tela inicial
 
 ## Tecnologias
@@ -37,6 +37,7 @@ Antes de publicar, rode `npm run build`. Ele confere os tipos e gera a pasta `di
    2. `supabase/seed/importar_planilha.sql` (uma vez só, senão as peças duplicam)
    3. `supabase/migrations/0002_registrar_venda.sql`
    4. `supabase/migrations/0003_cancelar_venda.sql`
+   5. `supabase/migrations/0004_importar_planilha.sql`
 3. Em Authentication > Users, crie o usuário de acesso (e-mail e senha, com Auto Confirm User marcado) e desative o cadastro público de novos usuários.
 4. Em Project Settings > API, copie a URL do projeto e a chave pública (anon/publishable) para o `.env.local`:
 
@@ -75,9 +76,17 @@ O saldo de cada peça não é um número digitado: ele é a soma dos movimentos 
 
 ## Planilha
 
-O botão «Baixar planilha», na tela Início, gera um arquivo Excel com três abas: Lista de estoque (igual à planilha original, com as mesmas fórmulas, regras de preenchimento e cores), Vendas e Dinheiro.
+**Baixar:** o botão «Baixar planilha», na tela Início, gera um arquivo Excel com três abas: Lista de estoque (igual à planilha original, com as mesmas fórmulas, regras de preenchimento e cores), Vendas e Dinheiro.
 
-O sistema é a fonte da verdade. A planilha é só uma cópia, sempre do sistema para a planilha: mudanças feitas nela não voltam para o sistema.
+**Atualizar o sistema pela planilha:** o ponto de cultura continua usando a planilha, então a tela «Atualizar pela planilha» lê o arquivo .xlsx (o mesmo modelo, a original ou a baixada do sistema), compara com o estoque e mostra o que vai mudar:
+
+- peças novas são cadastradas, com o saldo como entrada inicial;
+- peças que já existem têm o estoque e o preço corrigidos para ficarem iguais ao da planilha (o estoque vira um ajuste, nunca se perde o histórico);
+- peças que só existem no sistema não são mexidas.
+
+A pessoa vê a lista, pode desmarcar o que não quer e só então confirma. Tudo é aplicado de uma vez (função `importar_planilha`); se algo falhar, nada muda. As peças são achadas pelo nome e pelo tamanho, sem diferenciar maiúsculas, acentos e espaços a mais.
+
+Limite importante: a planilha só diz quanto cada peça tem e quanto já vendeu. A atualização acerta o estoque e o preço, mas não cria vendas nem lançamentos no Dinheiro. Para o Resumo e o Dinheiro ficarem certos, cada venda deve ser anotada em um lugar só.
 
 ## Estrutura
 
@@ -85,8 +94,8 @@ O sistema é a fonte da verdade. A planilha é só uma cópia, sempre do sistema
 src/
   auth/         sessão do Supabase
   components/   menus, cabeçalho das telas, gráficos, botão da planilha, ações do estoque
-  lib/          Supabase, formatação, períodos do Resumo, geração da planilha
-  pages/        Login, Inicio, Vender, Vendas, Estoque, Dinheiro, Resumo
+  lib/          Supabase, formatação, períodos do Resumo, geração e leitura da planilha
+  pages/        Login, Inicio, Vender, Vendas, Estoque, Dinheiro, Resumo, AtualizarPlanilha
   styles/       tema (cores e fonte) e classes de cartão
   types/        tipos compartilhados
 supabase/
@@ -109,6 +118,7 @@ public/         ícones, logo e manifesto do aplicativo
 - Parte 10: logo do Nós de Fibra e botão para baixar a planilha em Excel.
 - Parte 11: tela Vendas feitas, com cancelamento de venda.
 - Parte 12: correção de lançamentos do Dinheiro anotados à mão.
+- Parte 13: tela «Atualizar pela planilha», que lê a planilha do ponto de cultura e atualiza peças, preços e estoque do sistema.
 
 ## Ideias para o futuro
 

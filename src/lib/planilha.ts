@@ -181,7 +181,7 @@ function montarFolha(wb: Workbook, f: Folha) {
   // Rodapé
   ws.mergeCells(linhaRodape, 2, linhaRodape, ultimaColuna);
   const rod = ws.getCell(linhaRodape, 2);
-  rod.value = "Feito à mão, com carinho  ·  Esta planilha é uma cópia do sistema. Para mudar algo, altere no sistema e baixe de novo.";
+  rod.value = "Feito à mão, com carinho  ·  Cópia gerada pelo sistema Nós de Fibra.";
   rod.font = { name: "Georgia", size: 10, color: { argb: COR.terracota } };
   rod.alignment = { horizontal: "center", vertical: "middle" };
 

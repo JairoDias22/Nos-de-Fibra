@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { baixarPlanilha } from "../lib/planilha";
 
 /** Botão que gera o Excel com estoque, vendas e dinheiro e baixa no aparelho. */
@@ -21,16 +22,24 @@ export default function BotaoPlanilha() {
     <div className="cartao flex flex-col gap-3 p-6">
       <div>
         <div className="text-2xl font-extrabold">Planilha</div>
-        <div className="text-lg opacity-70">Baixe uma cópia do estoque, das vendas e do dinheiro em Excel.</div>
+        <div className="text-lg opacity-70">Baixe uma cópia em Excel, ou atualize o sistema com a planilha do ponto de cultura.</div>
       </div>
-      <button
-        type="button"
-        onClick={aoClicar}
-        disabled={gerando}
-        className="cursor-pointer self-start rounded-2xl border-0 bg-folha px-6 py-3 text-xl font-extrabold text-white disabled:opacity-60"
-      >
-        {gerando ? "Preparando a planilha..." : "Baixar planilha"}
-      </button>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={aoClicar}
+          disabled={gerando}
+          className="cursor-pointer rounded-2xl border-0 bg-folha px-6 py-3 text-xl font-extrabold text-white disabled:opacity-60"
+        >
+          {gerando ? "Preparando a planilha..." : "Baixar planilha"}
+        </button>
+        <Link
+          to="/atualizar-planilha"
+          className="rounded-2xl border-2 border-folha bg-transparent px-6 py-3 text-xl font-extrabold text-folha no-underline"
+        >
+          Atualizar pela planilha
+        </Link>
+      </div>
       {erro && (
         <p role="alert" className="m-0 rounded-2xl bg-[#F0C3B6] px-5 py-3 text-lg font-bold text-[#7A2A12]">
           Não consegui montar a planilha agora. Confira a internet e tente de novo.

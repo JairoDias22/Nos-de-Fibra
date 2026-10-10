@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Inicio from "./pages/Inicio";
 import Vender from "./pages/Vender";
 import Vendas from "./pages/Vendas";
+import AtualizarPlanilha from "./pages/AtualizarPlanilha";
 import Estoque from "./pages/Estoque";
 import Dinheiro from "./pages/Dinheiro";
 import Resumo from "./pages/Resumo";
@@ -22,6 +23,7 @@ export default function App() {
           <Route index element={<Inicio />} />
           <Route path="vender" element={<Vender />} />
           <Route path="vendas" element={<Vendas />} />
+          <Route path="atualizar-planilha" element={<AtualizarPlanilha />} />
           <Route path="estoque" element={<Estoque />} />
           <Route path="dinheiro" element={<Dinheiro />} />
           <Route path="resumo" element={<Resumo />} />
