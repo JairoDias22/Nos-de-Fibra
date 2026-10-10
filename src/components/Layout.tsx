@@ -52,9 +52,16 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
+        <img
+          src="/logo-associacao.png"
+          alt="Associação Cultural dos Moradores de Boa Vista"
+          width={285}
+          height={97}
+          className="mx-auto mt-auto h-auto w-52 max-w-full px-3 pb-3"
+        />
         <button
           onClick={sair}
-          className="mx-3 mb-6 mt-auto cursor-pointer rounded-xl border border-areia-escura bg-white px-4 py-3 text-lg font-bold text-tinta hover:bg-areia"
+          className="mx-3 mb-6 cursor-pointer rounded-xl border border-areia-escura bg-white px-4 py-3 text-lg font-bold text-tinta hover:bg-areia"
         >
           Sair
         </button>
