@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Icone, type NomeIcone } from "../components/Icones";
+import BotaoPlanilha from "../components/BotaoPlanilha";
 
 function saudacao() {
   const hora = new Date().getHours();
@@ -49,6 +50,8 @@ export default function Inicio() {
           </Link>
         ))}
       </div>
+
+      <BotaoPlanilha />
     </div>
   );
 }
